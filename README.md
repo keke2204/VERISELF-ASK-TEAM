@@ -4,7 +4,7 @@ A full-stack prototype for biometric identity enrollment, portrait comparison, m
 
 ## Live demo
 
-- **Web app:** [Open VeriSelf](https://veriself-ask-team.onrender.com)
+- **Web app:** [Open VeriSelf](https://keke2204.github.io/VERISELF-ASK-TEAM/)
 
 - **Identity profile:** [Open enrollment and verification](https://veriself-ask-team.onrender.com/identity)
 
