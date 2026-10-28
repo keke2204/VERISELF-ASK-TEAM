@@ -1,0 +1,256 @@
+name: Deploy VeriSelf frontend to GitHub Pages
+
+
+
+on:
+
+  push:
+  
+    branches: [main]
+    
+  workflow_dispatch:
+  
+
+
+permissions:
+
+  contents: read
+  
+  pages: write
+  
+  id-token: write
+  
+
+
+concurrency:
+
+  group: pages
+  
+  cancel-in-progress: true
+  
+
+
+jobs:
+
+  build:
+  
+    runs-on: ubuntu-latest
+    
+    steps:
+    
+      - name: Checkout
+      
+        uses: actions/checkout@v4
+        
+
+
+      - name: Setup Node.js
+      
+        uses: actions/setup-node@v4
+        
+        with:
+        
+          node-version: 20
+          
+          cache: npm
+          
+
+
+      - name: Extract bundled application
+      
+        run: |
+        
+          python3 - <<'PY'
+          
+          from pathlib import Path, PurePosixPath
+          
+          from zipfile import ZipFile
+          
+          archive = Path('VERI-upload.zip')
+          
+          target = Path('frontend')
+          
+          with ZipFile(archive) as z:
+          
+              for info in z.infolist():
+              
+                  name = info.filename.replace('\\\\', '/')
+                  
+                  if name.endswith('/'):
+                  
+                      continue
+                      
+                  path = PurePosixPath(name)
+                  
+                  if path.is_absolute() or '..' in path.parts:
+                  
+                      raise ValueError(f'Unsafe archive path: {name}')
+                      
+                  destination = target.joinpath(*path.parts)
+                  
+                  destination.parent.mkdir(parents=True, exist_ok=True)
+                  
+                  destination.write_bytes(z.read(info))
+                  
+          PY
+          
+
+
+      - name: Configure frontend API endpoint
+      
+        working-directory: frontend
+        
+        run: |
+        
+          python3 - <<'PY'
+          
+          from pathlib import Path
+          
+          path = Path('src/services/api.js')
+          
+          text = path.read_text()
+          
+          text = text.replace('const API_BASE = "http://127.0.0.1:8000";', 'const API_BASE = import.meta.env.VITE_API_BASE || "https://veriself-ask-team-api.onrender.com";')
+          
+          path.write_text(text)
+          
+          PY
+          
+
+
+      - name: Install frontend dependencies
+      
+        working-directory: frontend
+        
+        run: npm ci
+        
+
+
+      - name: Build frontend
+      
+        working-directory: frontend
+        
+        env:
+        
+          VITE_API_BASE: https://veriself-ask-team-api.onrender.com
+          
+        run: |
+        
+          npm run build -- --base=/VERISELF-ASK-TEAM/
+          
+          cp dist/index.html dist/404.html
+          
+          touch dist/.nojekyll
+          
+
+
+      - name: Configure Pages
+      
+        uses: actions/configure-pages@v5
+        
+
+
+      - name: Upload Pages artifact
+      
+        uses: actions/upload-pages-artifact@v3
+        
+        with:
+        
+          path: frontend/dist
+          
+
+
+  deploy:
+  
+    environment:
+    
+      name: github-pages
+      
+      url: ${{ steps.deployment.outputs.page_url }}
+      
+    runs-on: ubuntu-latest
+    
+    needs: build
+    
+    steps:
+    
+      - name: Deploy to GitHub Pages
+      
+        id: deployment
+        
+        uses: actions/deploy-pages@v4
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
