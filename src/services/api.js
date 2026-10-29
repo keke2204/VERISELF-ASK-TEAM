@@ -35,11 +35,32 @@ async function request(endpoint, options = {}) {
   }
   return data;
 }
+
+async function warmApi() {
+  try {
+    await fetch(`${API_BASE}/health`, { cache: "no-store" });
+  } catch {
+    // The real request below provides the user-facing error if the service is unavailable.
+  }
+}
+
 export const getHealth = () => request("/health");
-export const registerIdentity = (formData) => request("/identity/register", { method: "POST", body: formData });
-export const verifyIdentity = (formData) => request("/identity/verify", { method: "POST", body: formData });
-export const analyzeImage = (formData) => request("/manipulation/analyze-image", { method: "POST", body: formData });
-export const analyzeVideo = (formData) => request("/manipulation/analyze-video", { method: "POST", body: formData });
+export const registerIdentity = async (formData) => {
+  await warmApi();
+  return request("/identity/register", { method: "POST", body: formData });
+};
+export const verifyIdentity = async (formData) => {
+  await warmApi();
+  return request("/identity/verify", { method: "POST", body: formData });
+};
+export const analyzeImage = async (formData) => {
+  await warmApi();
+  return request("/manipulation/analyze-image", { method: "POST", body: formData });
+};
+export const analyzeVideo = async (formData) => {
+  await warmApi();
+  return request("/manipulation/analyze-video", { method: "POST", body: formData });
+};
 export const getMonitoringTargets = (userId) => request(`/monitoring/targets/${userId}`);
 export const createMonitoringTarget = (userId, targetUrl) => request("/monitoring/targets", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ user_id: Number(userId), target_url: targetUrl }) });
 export const scanMonitoringTarget = (targetId) => request(`/monitoring/targets/${targetId}/scan`, { method: "POST" });
