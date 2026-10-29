@@ -9,16 +9,26 @@ async function request(endpoint, options = {}) {
   const headers = new Headers(options.headers || {});
   let response;
 
-  try {
-    response = await fetch(`${API_BASE}${endpoint}`, {
-      ...options,
-      headers,
-      signal: options.signal,
-    });
-  } catch (error) {
-    if (error.name === "AbortError") throw error;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      response = await fetch(`${API_BASE}${endpoint}`, {
+        ...options,
+        headers,
+        signal: options.signal,
+      });
+
+      if (![502, 503, 504].includes(response.status) || attempt === 2) break;
+    } catch (error) {
+      if (error.name === "AbortError") throw error;
+      if (attempt === 2) break;
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 1500 * (attempt + 1)));
+  }
+
+  if (!response) {
     throw new Error(
-      "Unable to reach the VeriSelf API. Check VITE_API_BASE and confirm the backend is online."
+      "The VeriSelf API is waking up or temporarily unavailable. Please wait a few seconds and try again."
     );
   }
 
@@ -31,16 +41,23 @@ async function request(endpoint, options = {}) {
     let message = `API request failed: ${response.status}`;
     if (typeof data?.detail === "string") message = data.detail;
     else if (data?.detail) message = JSON.stringify(data.detail);
+    if ([502, 503, 504].includes(response.status)) {
+      message = "The VeriSelf API is waking up or temporarily unavailable. Please try again in a few seconds.";
+    }
     throw new Error(message);
   }
   return data;
 }
 
 async function warmApi() {
-  try {
-    await fetch(`${API_BASE}/health`, { cache: "no-store" });
-  } catch {
-    // The real request below provides the user-facing error if the service is unavailable.
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      const response = await fetch(`${API_BASE}/health`, { cache: "no-store" });
+      if (response.ok) return;
+    } catch {
+      // Retry while the Render instance is waking.
+    }
+    await new Promise((resolve) => setTimeout(resolve, 1500 * (attempt + 1)));
   }
 }
 
