@@ -1,0 +1,8 @@
+# The Vercel project is the static React/Vite frontend.
+# Keep backend-only Python sources and ML dependencies for Render, not Vercel.
+app/
+data/
+requirements.txt
+manipulation_detector.py
+VERI-upload.zip
+README.md

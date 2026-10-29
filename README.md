@@ -153,6 +153,8 @@ The app also exposes monitoring, match, risk, alert, evidence, legal-response, a
 
 The public frontend and API are deployed as separate Render services from this repository. The API allows the frontend origin through CORS; the live health link above can be used to check backend availability. Free Render instances may sleep while idle and take time to wake on the next request.
 
+The Vercel frontend deployment uses `.vercelignore` to exclude the Python/ML backend files and `requirements.txt`; backend dependencies are installed only by the Render API service. This prevents Vercel from attempting to compile SciPy with a missing Fortran compiler.
+
 ## Privacy, security, and limitations
 
 > **Do not use the public demo for sensitive or production biometric data.**
