@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ShieldCheck, Sun, Moon, Home as HomeIcon } from "lucide-react";
-import { useLocation, Link, useNavigate } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 
 const pageTitles = {
   "/dashboard": {
@@ -48,7 +48,6 @@ const pageTitles = {
 
 export default function Topbar() {
   const location = useLocation();
-  const navigate = useNavigate();
   const current = pageTitles[location.pathname] || {
     title: "Identity Command Center",
     subtitle: "Protecting biometric presence across the open web",
@@ -73,12 +72,6 @@ export default function Topbar() {
 
   const toggleTheme = () => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
-  };
-
-  const signOut = () => {
-    localStorage.removeItem("veriself_access_token");
-    localStorage.removeItem("veriself_identity_id");
-    navigate("/login");
   };
 
   return (
@@ -121,14 +114,6 @@ export default function Topbar() {
         >
           {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
           <span>{theme === "dark" ? "Light" : "Dark"}</span>
-        </button>
-
-        <button
-          className="theme-toggle"
-          type="button"
-          onClick={signOut}
-        >
-          Sign out
         </button>
 
         <motion.div

@@ -1,5 +1,4 @@
-from fastapi import APIRouter, Depends
-from app.auth import get_current_user
+from fastapi import APIRouter
 from app.api.protection import (
     router as protection_router,
 )
@@ -26,13 +25,12 @@ def health_check():
     }
 
 
-protected = {"dependencies": [Depends(get_current_user)]}
-router.include_router(identity_router, **protected)
-router.include_router(monitoring_router, **protected)
-router.include_router(match_router, **protected)
-router.include_router(risk_router, **protected)
-router.include_router(alerts_router, **protected)
-router.include_router(evidence_router, **protected)
-router.include_router(legal_response_router, **protected)
-router.include_router(protection_router, **protected)
-router.include_router(manipulation_router, **protected)
+router.include_router(identity_router)
+router.include_router(monitoring_router)
+router.include_router(match_router)
+router.include_router(risk_router)
+router.include_router(alerts_router)
+router.include_router(evidence_router)
+router.include_router(legal_response_router)
+router.include_router(protection_router)
+router.include_router(manipulation_router)

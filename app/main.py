@@ -30,7 +30,6 @@ from app.models import (
     LegalResponse,
 )
 from app.api.router import router
-from app.api.auth import router as auth_router
 from app.middleware import SecurityHeadersMiddleware, RateLimitMiddleware
 
 # Load environment variables from .env (never hardcode secrets)
@@ -85,7 +84,6 @@ app.add_middleware(
 )
 
 # ── Routes ──────────────────────────────────────────────────────────────────
-app.include_router(auth_router)
 app.include_router(router)
 
 

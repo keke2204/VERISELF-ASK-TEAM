@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import Sidebar from "./components/Sidebar";
 import Topbar from "./components/Topbar";
@@ -17,7 +17,6 @@ import Alerts from "./pages/Alerts";
 import Evidence from "./pages/Evidence";
 import Legal from "./pages/Legal";
 import Protection from "./pages/Protection";
-import Login from "./pages/Login";
 import Manipulation from "./pages/Manipulation";
 
 // Legal / policy pages
@@ -29,13 +28,6 @@ import CookiePolicy from "./pages/CookiePolicy";
 import NotFound from "./pages/NotFound";
 
 function DashboardLayout({ children }) {
-  const location = useLocation();
-  const token = localStorage.getItem("veriself_access_token");
-
-  if (!token) {
-    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
-  }
-
   return (
     <div className="app-shell">
       <Sidebar />
@@ -74,7 +66,6 @@ function AppContent() {
       <Routes location={location}>
         {/* Landing Page with VeriSelf Template Model */}
         <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
 
         {/* Dashboard Console Routes (wrapped in Sidebar & Topbar) */}
         <Route

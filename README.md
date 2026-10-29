@@ -102,18 +102,9 @@ Open the Vite URL printed in the terminal (normally `http://localhost:5173` ). T
 
 The backend reads `ALLOWED_ORIGINS` to configure CORS. For local development, its defaults include `http://localhost:5173` and `http://127.0.0.1:5173`. Set `ENVIRONMENT=production` to disable the interactive API documentation endpoints.
 
-### API authentication
+### API access
 
-Protected API routes require a JWT bearer token. Configure these backend environment variables in Render and local development:
-
-```text
-JWT_SECRET=<long-random-secret>
-AUTH_USERNAME=<workspace-username>
-AUTH_PASSWORD=<workspace-password>
-AUTH_USER_ID=1
-```
-
-Sign in with `POST /auth/login` using JSON such as `{"username":"<workspace-username>","password":"<workspace-password>"}`. Send the returned token as `Authorization: Bearer <token>` on identity, monitoring, match, risk, alert, evidence, legal-response, protection, and manipulation requests. `/` and `/health` remain public for service monitoring.
+The demo dashboard and API routes are open for direct use without a login or bearer token. The UI uses the fixed demo user ID (`1`) for prototype workflows. Do not use the public demo for sensitive or production biometric data.
 
 ## Test identity enrollment and verification
 

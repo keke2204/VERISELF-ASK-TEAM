@@ -1,9 +1,7 @@
 const API_BASE = import.meta.env.VITE_API_BASE || "http://127.0.0.1:8000";
 
 async function request(endpoint, options = {}) {
-  const token = localStorage.getItem("veriself_access_token");
   const headers = new Headers(options.headers || {});
-  if (token) headers.set("Authorization", `Bearer ${token}`);
   const response = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
   if (!response.ok) {
     let message = `API request failed: ${response.status}`;
@@ -16,8 +14,6 @@ async function request(endpoint, options = {}) {
   }
   return response.json();
 }
-export const login = (username, password) => request("/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username, password }) });
-
 export const getHealth = () => request("/health");
 export const registerIdentity = (formData) => request("/identity/register", { method: "POST", body: formData });
 export const verifyIdentity = (formData) => request("/identity/verify", { method: "POST", body: formData });
