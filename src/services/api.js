@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_BASE || "http://127.0.0.1:8000";
+const API_BASE = import.meta.env.VITE_API_BASE || (import.meta.env.DEV ? "http://127.0.0.1:8000" : "https://veriself-ask-team-api.onrender.com");
 
 async function request(endpoint, options = {}) {
   const headers = new Headers(options.headers || {});
