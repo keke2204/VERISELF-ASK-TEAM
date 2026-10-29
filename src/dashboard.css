@@ -663,6 +663,147 @@ input[type="file"] {
   color: #b14a42;
 }
 
+.matte-panel,
+.matte-empty-panel,
+.matte-status-strip {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--surface) 92%, #101713);
+  box-shadow: var(--card-shadow);
+}
+
+.matte-panel {
+  padding: 22px;
+}
+
+.matte-status-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin: 0 0 22px;
+  padding: 14px 17px;
+  border-color: color-mix(in srgb, #54a878 28%, var(--line));
+  background: color-mix(in srgb, #54a878 7%, var(--surface));
+}
+
+.matte-empty-panel {
+  min-height: 270px;
+  color: var(--muted);
+}
+
+.matte-primary-button,
+.matte-secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 15px;
+  border-radius: 9px;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform .2s ease, background .2s ease, border-color .2s ease;
+}
+
+.matte-primary-button {
+  border: 1px solid #54a878;
+  background: #54a878;
+  color: #0d1711;
+}
+
+.matte-primary-button:hover:not(:disabled) {
+  background: #69bf8b;
+  transform: translateY(-1px);
+}
+
+.matte-secondary-button {
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--ink-soft);
+}
+
+.matte-secondary-button:hover:not(:disabled) {
+  border-color: #54a878;
+  color: #54a878;
+  transform: translateY(-1px);
+}
+
+.field-input,
+.identity-name-input {
+  display: block;
+  width: 100%;
+  min-height: 43px;
+  padding: 10px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 9px;
+  outline: none;
+  background: color-mix(in srgb, var(--surface-2) 78%, #0d1310);
+  color: var(--ink);
+  font-size: 12px;
+}
+
+.field-input::placeholder,
+.identity-name-input::placeholder {
+  color: var(--muted);
+}
+
+.field-input:focus,
+.identity-name-input:focus {
+  border-color: #54a878;
+  box-shadow: 0 0 0 3px rgba(84, 168, 120, .14);
+}
+
+.identity-upload {
+  min-height: 160px;
+  place-items: center;
+  text-align: center;
+  border: 1px dashed color-mix(in srgb, #54a878 42%, var(--line));
+  background: color-mix(in srgb, #54a878 5%, var(--surface));
+  cursor: pointer;
+  transition: border-color .2s ease, background .2s ease;
+}
+
+.identity-upload:hover {
+  border-color: #54a878;
+  background: color-mix(in srgb, #54a878 10%, var(--surface));
+}
+
+.alert-list,
+.finding-list {
+  min-height: 170px;
+}
+
+.identity-page .identity-heading {
+  align-items: flex-start;
+  flex-direction: column;
+  margin-bottom: 24px;
+}
+
+.identity-page .identity-enrollment-grid {
+  align-items: start;
+}
+
+.identity-page .identity-feedback-panel pre,
+.identity-page pre,
+.page-shell pre {
+  max-width: 100%;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.page-shell > .card,
+.page-shell > .matte-panel,
+.page-shell > section > .card {
+  width: 100%;
+}
+
+.page-shell > .page-heading + .card,
+.page-shell > .page-heading + .matte-panel {
+  margin-top: 4px;
+}
+
 .loading-state {
   display: grid;
   place-items: center;
@@ -741,6 +882,25 @@ input[type="file"] {
   .page-shell,
   .page-container {
     padding: 25px 16px 50px;
+  }
+
+  .matte-panel {
+    padding: 17px;
+  }
+
+  .matte-status-strip {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .identity-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .identity-actions > button {
+    width: 100%;
   }
 
   .page-heading,
