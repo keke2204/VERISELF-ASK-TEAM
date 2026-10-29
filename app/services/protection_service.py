@@ -25,14 +25,12 @@ COEFF_B = (3, 2)
 
 
 def _get_secret() -> bytes:
-    secret = os.getenv(
-        "VERISELF_WATERMARK_SECRET"
-    )
+    secret = os.getenv("VERISELF_WATERMARK_SECRET")
 
+    # Keep the public demo functional when the free Render service has not
+    # been given a secret yet. Set VERISELF_WATERMARK_SECRET in production.
     if not secret:
-        raise ValueError(
-            "VERISELF_WATERMARK_SECRET is not configured."
-        )
+        secret = "veriself-demo-secret-change-in-production"
 
     return secret.encode("utf-8")
 

@@ -92,8 +92,14 @@ export const updateAlertStatus = (alertId, status) => request(`/alerts/${alertId
 export const getEvidence = (identityId) => request(`/evidence/${identityId}`);
 export const generateLegalNotice = (findingId) => request(`/legal-response/generate/${findingId}`, { method: "POST" });
 export const getLegalResponses = (identityId) => request(`/legal-response/${identityId}`);
-export const protectMedia = (formData) => request("/protection/protect", { method: "POST", body: formData });
-export const verifyProtectedMedia = (formData) => request("/protection/verify", { method: "POST", body: formData });
+export const protectMedia = async (formData) => {
+  await warmApi();
+  return request("/protection/protect", { method: "POST", body: formData });
+};
+export const verifyProtectedMedia = async (formData) => {
+  await warmApi();
+  return request("/protection/verify", { method: "POST", body: formData });
+};
 export const getProtectionHistory = (identityId) => request(`/protection/history/${identityId}`);
 export async function downloadProtectedMedia(protectionId) {
   const response = await fetch(`${API_BASE}/protection/download/${protectionId}`);
