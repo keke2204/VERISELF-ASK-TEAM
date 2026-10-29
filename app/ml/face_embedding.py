@@ -1,13 +1,30 @@
 from functools import lru_cache
+import os
 
 import numpy as np
-import torch
 from PIL import Image
-from facenet_pytorch import InceptionResnetV1
+
+
+USE_FACE_MODEL = os.getenv("VERI_USE_FACE_MODEL", "0").lower() in {
+    "1",
+    "true",
+    "yes",
+}
+EMBEDDING_MODEL_NAME = (
+    "InceptionResnetV1-VGGFace2"
+    if USE_FACE_MODEL
+    else "LightweightVisualEmbedding-v1"
+)
 
 
 @lru_cache(maxsize=1)
 def get_embedding_model():
+    if not USE_FACE_MODEL:
+        return None
+
+    import torch
+    from facenet_pytorch import InceptionResnetV1
+
     model = InceptionResnetV1(
         pretrained="vggface2"
     ).eval()
@@ -15,7 +32,7 @@ def get_embedding_model():
     return model
 
 
-def prepare_face(face_bgr: np.ndarray) -> torch.Tensor:
+def prepare_face(face_bgr: np.ndarray):
     if face_bgr is None or face_bgr.size == 0:
         raise ValueError("Invalid face image.")
 
@@ -48,9 +65,32 @@ def prepare_face(face_bgr: np.ndarray) -> torch.Tensor:
     return tensor
 
 
+def generate_lightweight_embedding(face_bgr: np.ndarray) -> list[float]:
+    """Create a stable 512-value visual signal without loading a large model.
+
+    This fallback is intended for constrained deployments. It is useful for
+    prototype comparisons, but it is not a calibrated biometric identity score.
+    """
+    if face_bgr is None or face_bgr.size == 0:
+        raise ValueError("Invalid face image.")
+
+    face_rgb = face_bgr[:, :, ::-1]
+    image = Image.fromarray(face_rgb).convert("L").resize((32, 16))
+    embedding = np.asarray(image, dtype=np.float32).reshape(-1)
+    embedding = (embedding - 127.5) / 128.0
+    norm = np.linalg.norm(embedding)
+
+    if norm == 0:
+        raise ValueError("Visual embedding normalization failed.")
+
+    return (embedding / norm).astype(np.float32).tolist()
+
 def generate_face_embedding(
     face_bgr: np.ndarray,
 ) -> list[float]:
+
+    if not USE_FACE_MODEL:
+        return generate_lightweight_embedding(face_bgr)
 
     tensor = prepare_face(
         face_bgr

@@ -12,6 +12,7 @@ from app.ml.face_detector import (
     detect_faces,
 )
 from app.ml.face_embedding import (
+    EMBEDDING_MODEL_NAME,
     generate_face_embedding,
 )
 from app.ml.similarity import (
@@ -74,9 +75,7 @@ def register_identity(
         "format": fingerprint["format"],
         "face_count": len(faces),
         "embedding_dimension": len(embedding),
-        "embedding_model": (
-            "InceptionResnetV1-VGGFace2"
-        ),
+        "embedding_model": EMBEDDING_MODEL_NAME,
     }
 
     profile = IdentityProfile(
@@ -112,8 +111,8 @@ def register_identity(
         "embedding_dimension": len(embedding),
         "message": (
             "Identity registered successfully. "
-            "A 512-dimensional face embedding "
-            "and visual fingerprint were generated."
+        "A 512-dimensional visual embedding "
+        "and image fingerprint were generated."
         ),
     }
 
