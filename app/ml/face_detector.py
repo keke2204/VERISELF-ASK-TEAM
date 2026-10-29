@@ -1,17 +1,70 @@
 from pathlib import Path
+import os
 
 import cv2
 import numpy as np
 from PIL import Image
-from facenet_pytorch import MTCNN
 
 
-_FACE_DETECTOR = MTCNN(
-    image_size=160,
-    margin=20,
-    keep_all=True,
-    post_process=False,
+USE_MTCNN = os.getenv("VERI_USE_FACE_MODEL", "0").lower() in {
+    "1",
+    "true",
+    "yes",
+}
+
+_HAAR_DETECTOR = cv2.CascadeClassifier(
+    str(Path(cv2.data.haarcascades) / "haarcascade_frontalface_default.xml")
 )
+
+
+def _detect_with_haar(image: Image.Image) -> list[tuple[int, int, int, int]]:
+    gray = cv2.cvtColor(np.asarray(image), cv2.COLOR_RGB2GRAY)
+    scale = min(1.0, 900 / max(gray.shape[:2]))
+    if scale < 1.0:
+        gray = cv2.resize(gray, None, fx=scale, fy=scale, interpolation=cv2.INTER_AREA)
+
+    boxes = _HAAR_DETECTOR.detectMultiScale(
+        gray,
+        scaleFactor=1.1,
+        minNeighbors=5,
+        minSize=(40, 40),
+    )
+
+    if scale == 1.0:
+        return [(int(x), int(y), int(width), int(height)) for x, y, width, height in boxes]
+
+    inverse_scale = 1 / scale
+    return [
+        (
+            int(x * inverse_scale),
+            int(y * inverse_scale),
+            int(width * inverse_scale),
+            int(height * inverse_scale),
+        )
+        for x, y, width, height in boxes
+    ]
+
+
+def _detect_with_mtcnn(image: Image.Image) -> list[tuple[int, int, int, int]]:
+    from facenet_pytorch import MTCNN
+
+    detector = MTCNN(
+        image_size=160,
+        margin=20,
+        keep_all=True,
+        post_process=False,
+    )
+    boxes, probabilities = detector.detect(image)
+    if boxes is None:
+        return []
+
+    faces = []
+    for box, probability in zip(boxes, probabilities):
+        if probability is None or probability < 0.90:
+            continue
+        x1, y1, x2, y2 = box
+        faces.append((int(x1), int(y1), int(x2 - x1), int(y2 - y1)))
+    return faces
 
 
 def detect_faces(
@@ -25,47 +78,9 @@ def detect_faces(
 
     image = Image.open(path).convert("RGB")
 
-    boxes, probabilities = _FACE_DETECTOR.detect(
-        image
-    )
-
-    if boxes is None:
-        return []
-
-    faces = []
-
-    for box, probability in zip(
-        boxes,
-        probabilities,
-    ):
-        if probability is None:
-            continue
-
-        if probability < 0.90:
-            continue
-
-        x1, y1, x2, y2 = box
-
-        width = max(
-            0,
-            int(x2 - x1),
-        )
-
-        height = max(
-            0,
-            int(y2 - y1),
-        )
-
-        faces.append(
-            (
-                int(x1),
-                int(y1),
-                width,
-                height,
-            )
-        )
-
-    return faces
+    if USE_MTCNN:
+        return _detect_with_mtcnn(image)
+    return _detect_with_haar(image)
 
 
 def crop_face(
