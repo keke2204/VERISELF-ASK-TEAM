@@ -42,12 +42,16 @@ These are prototype workflows. Their results are not proof of identity, exhausti
 
 ## Repository layout
 
-The Render build currently expands the source archive in the repository before building the services. The uploaded source bundle contains the frontend and backend project files, including `src/`, `app/`, `public/`, `package.json`, and `requirements.txt`.
+The application source is available at the repository root for local Vite/Python tooling. `VERI-upload.zip` is kept as a synchronized source bundle for the GitHub Pages workflow and service deployments.
 
 ```
 VERISELF-ASK-TEAM/
-├── README.md
-└── VERI-upload.zip       # app source bundle used by the Render build
+├── app/                   # FastAPI backend
+├── src/                   # React frontend
+├── public/
+├── package.json
+├── requirements.txt
+└── VERI-upload.zip        # synchronized deployment bundle
 ```
 
 ## Run locally
