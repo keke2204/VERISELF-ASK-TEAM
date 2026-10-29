@@ -1,18 +1,39 @@
-const API_BASE = import.meta.env.VITE_API_BASE || (import.meta.env.DEV ? "http://127.0.0.1:8000" : "https://veriself-ask-team-api.onrender.com");
+const API_BASE = (
+  import.meta.env.VITE_API_BASE ||
+  (import.meta.env.DEV
+    ? "http://127.0.0.1:8000"
+    : "https://veriself-ask-team-api.onrender.com")
+).replace(/\/$/, "");
 
 async function request(endpoint, options = {}) {
   const headers = new Headers(options.headers || {});
-  const response = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
+  let response;
+
+  try {
+    response = await fetch(`${API_BASE}${endpoint}`, {
+      ...options,
+      headers,
+      signal: options.signal,
+    });
+  } catch (error) {
+    if (error.name === "AbortError") throw error;
+    throw new Error(
+      "Unable to reach the VeriSelf API. Check VITE_API_BASE and confirm the backend is online."
+    );
+  }
+
+  const contentType = response.headers.get("content-type") || "";
+  const data = contentType.includes("application/json")
+    ? await response.json().catch(() => null)
+    : null;
+
   if (!response.ok) {
     let message = `API request failed: ${response.status}`;
-    try {
-      const data = await response.json();
-      if (typeof data.detail === "string") message = data.detail;
-      else if (data.detail) message = JSON.stringify(data.detail);
-    } catch {}
+    if (typeof data?.detail === "string") message = data.detail;
+    else if (data?.detail) message = JSON.stringify(data.detail);
     throw new Error(message);
   }
-  return response.json();
+  return data;
 }
 export const getHealth = () => request("/health");
 export const registerIdentity = (formData) => request("/identity/register", { method: "POST", body: formData });

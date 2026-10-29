@@ -936,3 +936,112 @@ input[type="file"] {
     display: none;
   }
 }
+
+/* Command Center: charcoal operations-console skin */
+.app-shell {
+  --bg: #080d0b;
+  --surface: #101815;
+  --surface-2: #14211b;
+  --ink: #e7f1eb;
+  --ink-soft: #b5c8bc;
+  --muted: #789083;
+  --line: rgba(139, 190, 157, .16);
+  --line-strong: rgba(139, 190, 157, .3);
+  --accent: #4fba78;
+  --accent-strong: #2f8f57;
+  --accent-glow: rgba(79, 186, 120, .24);
+  --card-shadow: 0 18px 55px rgba(0, 0, 0, .28);
+  background: var(--bg);
+}
+
+.app-shell .app-sidebar,
+.app-shell .shell-main,
+.app-shell .topbar {
+  background: var(--bg);
+}
+
+.app-shell .app-sidebar {
+  background: #0b120f;
+  border-color: var(--line);
+}
+
+.app-shell .topbar {
+  background: rgba(8, 13, 11, .86);
+  border-color: var(--line);
+}
+
+.app-shell .metric,
+.app-shell .panel,
+.app-shell .card {
+  border-color: var(--line);
+  background: linear-gradient(145deg, rgba(18, 29, 23, .98), rgba(12, 20, 16, .98));
+  box-shadow: var(--card-shadow);
+}
+
+.app-shell .metric:hover,
+.app-shell .panel:hover {
+  border-color: rgba(79, 186, 120, .36);
+}
+
+.app-shell .page-title,
+.app-shell .panel-header h2,
+.app-shell .metric-value,
+.app-shell .topbar-title,
+.app-shell .finding-title,
+.app-shell .alert-title {
+  color: var(--ink);
+}
+
+.app-shell .page-description,
+.app-shell .finding-description,
+.app-shell .security-alert p {
+  color: var(--ink-soft);
+}
+
+.dashboard-feedback {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 22px;
+  padding: 13px 15px;
+  border-radius: 10px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.dashboard-feedback--error {
+  border: 1px solid rgba(248, 113, 113, .3);
+  background: rgba(127, 29, 29, .2);
+  color: #fda4af;
+}
+
+.dashboard-feedback--warning {
+  border: 1px solid rgba(251, 191, 36, .28);
+  background: rgba(120, 74, 10, .18);
+  color: #fcd34d;
+}
+
+.dashboard-retry {
+  flex: 0 0 auto;
+  min-height: 30px;
+  padding: 0 11px;
+  border: 1px solid rgba(248, 113, 113, .4);
+  border-radius: 7px;
+  background: transparent;
+  color: #fecdd3;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.dashboard-retry:hover {
+  background: rgba(248, 113, 113, .12);
+}
+
+@media (max-width: 560px) {
+  .dashboard-feedback {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -16,6 +16,11 @@ import FindingCard from "../components/FindingCard";
 import LoadingState from "../components/LoadingState";
 import { getAlerts, getFindings, getRiskSummary } from "../services/api";
 
+function getStoredIdentityId() {
+  const value = Number.parseInt(localStorage.getItem("veriself_identity_id") || "", 10);
+  return Number.isInteger(value) && value > 0 ? value : null;
+}
+
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -32,28 +37,46 @@ const itemVariants = {
 };
 
 export default function Dashboard() {
-  const identityId = Number(localStorage.getItem("veriself_identity_id"));
+  const identityId = getStoredIdentityId();
   const [summary, setSummary] = useState(null);
   const [findings, setFindings] = useState([]);
   const [alerts, setAlerts] = useState([]);
   const [loading, setLoading] = useState(Boolean(identityId));
   const [error, setError] = useState("");
+  const [warning, setWarning] = useState("");
 
-  useEffect(() => {
+  const loadDashboard = useCallback(async () => {
     if (!identityId) return;
-    Promise.all([
+
+    setLoading(true);
+    setError("");
+    setWarning("");
+
+    const results = await Promise.allSettled([
       getRiskSummary(identityId),
       getFindings(identityId),
       getAlerts(identityId),
-    ])
-      .then(([s, f, a]) => {
-        setSummary(s);
-        setFindings(f || []);
-        setAlerts(a || []);
-      })
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
+    ]);
+
+    const [summaryResult, findingsResult, alertsResult] = results;
+    const failures = results.filter((result) => result.status === "rejected");
+
+    if (summaryResult.status === "fulfilled") setSummary(summaryResult.value);
+    if (findingsResult.status === "fulfilled") setFindings(findingsResult.value || []);
+    if (alertsResult.status === "fulfilled") setAlerts(alertsResult.value || []);
+
+    if (failures.length === results.length) {
+      setError(failures[0].reason?.message || "The Command Center could not load its data.");
+    } else if (failures.length) {
+      setWarning(`${failures.length} telemetry stream${failures.length > 1 ? "s" : ""} could not be refreshed. Showing the available data.`);
+    }
+
+    setLoading(false);
   }, [identityId]);
+
+  useEffect(() => {
+    loadDashboard();
+  }, [loadDashboard]);
 
   if (!identityId) {
     return (
@@ -172,10 +195,17 @@ export default function Dashboard() {
 
       {error && (
         <motion.div
-          className="p-4 mb-6 rounded-xl border border-rose-500/30 bg-rose-500/10 text-rose-300 text-sm"
+          className="dashboard-feedback dashboard-feedback--error"
           variants={itemVariants}
         >
-          {error}
+          <span>{error}</span>
+          <button type="button" className="dashboard-retry" onClick={loadDashboard}>Retry connection</button>
+        </motion.div>
+      )}
+
+      {warning && !error && (
+        <motion.div className="dashboard-feedback dashboard-feedback--warning" variants={itemVariants}>
+          {warning}
         </motion.div>
       )}
 
