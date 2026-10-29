@@ -199,6 +199,17 @@ async def protect_media(
             created_at=record.created_at,
         )
 
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail=str(exc),
+        ) from exc
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Protection processing failed: {exc}",
+        ) from exc
+
     finally:
         for path in work_dir.glob("*"):
             try:
@@ -394,4 +405,4 @@ def download_protected_media(
         path=str(file_path),
         media_type="image/png",
         filename=f"veriself-shielded-{record.id}.png",
-    )
+    )
